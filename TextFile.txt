@@ -1,0 +1,2 @@
+﻿Aplicacion de ASP.NET WEB Application (Net Framework)
+para iniciar el proyecto colocar como inicio de proyecto a FrmLogin e iniciar el proyecto 

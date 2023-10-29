@@ -1,0 +1,137 @@
+﻿USE [Crud_ASPNET_Web]
+GO
+/****** Object:  Table [dbo].[Imagenes]    Script Date: 29/10/2023 16:10:17 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Imagenes](
+	[IdUsuario] [int] NULL,
+	[Imagen] [image] NULL
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Usuarios]    Script Date: 29/10/2023 16:10:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Usuarios](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Nombres] [varchar](50) NULL,
+	[Apellidos] [varchar](50) NULL,
+	[Fecha] [date] NULL,
+	[Usuario] [varchar](50) NULL,
+	[Clave] [varbinary](max) NULL
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  StoredProcedure [dbo].[CambiarContrasenia]    Script Date: 29/10/2023 16:10:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+create procedure [dbo].[CambiarContrasenia]
+@Id int,
+@Clave varchar(100),
+@Patron varchar(50)
+as
+begin
+UPDATE Usuarios SET Clave=(ENCRYPTBYPASSPHRASE(@Patron, @Clave)) WHERE Id=@Id
+end
+GO
+/****** Object:  StoredProcedure [dbo].[CambiarImagen]    Script Date: 29/10/2023 16:10:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+create procedure [dbo].[CambiarImagen]
+@Id int,
+@Imagen image
+as
+begin
+UPDATE Imagenes SET Imagen=@Imagen WHERE IdUsuario=@Id
+end
+GO
+/****** Object:  StoredProcedure [dbo].[CargarImagen]    Script Date: 29/10/2023 16:10:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+create procedure [dbo].[CargarImagen]
+@Id int
+as
+begin
+SELECT Imagen FROM Imagenes WHERE IdUsuario=@Id
+end
+GO
+/****** Object:  StoredProcedure [dbo].[ContarUsuario]    Script Date: 29/10/2023 16:10:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+create procedure [dbo].[ContarUsuario]
+@usuario varchar(50)
+as
+begin
+SELECT COUNT(*) FROM Usuarios WHERE Usuario=@usuario
+end
+GO
+/****** Object:  StoredProcedure [dbo].[Eliminar]    Script Date: 29/10/2023 16:10:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+create procedure [dbo].[Eliminar]
+@Id int
+as
+begin
+DELETE FROM Usuarios WHERE Id=@Id;
+DELETE FROM Imagenes WHERE IdUsuario=@Id
+end
+GO
+/****** Object:  StoredProcedure [dbo].[Perfil]    Script Date: 29/10/2023 16:10:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+create procedure [dbo].[Perfil]
+@Id int
+as
+begin
+SELECT * FROM Usuarios WHERE Id=@Id;
+SELECT * FROM Imagenes WHERE IdUsuario=@Id
+end
+GO
+/****** Object:  StoredProcedure [dbo].[Registrar]    Script Date: 29/10/2023 16:10:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+create procedure [dbo].[Registrar]
+@Nombres varchar(50),
+@Apellidos varchar(50),
+@Fecha date,
+@Usuario varchar(50),
+@Clave varchar(100),
+@Patron varchar(50),
+@IdUsuario int,
+@Imagen image
+as
+begin
+insert into Usuarios VALUES(@Nombres, @Apellidos, @Fecha, @Usuario, ENCRYPTBYPASSPHRASE(@Patron, @Clave));
+SET @IdUsuario = (SELECT Id FROM Usuarios WHERE Usuario=@Usuario);
+INSERT INTO Imagenes VALUES(@IdUsuario, @Imagen)
+end
+GO
+/****** Object:  StoredProcedure [dbo].[Validar]    Script Date: 29/10/2023 16:10:18 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE procedure [dbo].[Validar]
+@Usuario varchar (50),
+@Clave varchar (100),
+@Patron varchar (50)
+as begin
+SELECT * FROM Usuarios WHERE Usuario=@Usuario AND CONVERT(varchar(100), DECRYPTBYPASSPHRASE(@Patron, Clave))=@Clave
+end
+GO
